@@ -7,6 +7,7 @@ import android.media.AudioRecord
 import android.media.AudioTrack
 import android.media.AudioManager
 import android.os.Bundle
+import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -38,6 +39,18 @@ class MainActivity : AppCompatActivity() {
         } else {
             setupAudio()
         }
+
+        val volumeControl = findViewById<SeekBar>(R.id.volumeControl)
+        volumeControl.max = 100 // SeekBar range is 0 to 100
+        volumeControl.progress = 100 // Default to max volume
+        volumeControl.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                audioTrack?.setVolume(progress / 100.0f) // Set volume as a fraction of max
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
     }
 
     private fun setupAudio() {
@@ -57,9 +70,7 @@ class MainActivity : AppCompatActivity() {
                 AudioFormat.ENCODING_PCM_16BIT,
                 bufferSize,
                 AudioTrack.MODE_STREAM
-            ).apply {
-                setVolume(AudioTrack.getMaxVolume()) // Set volume explicitly
-            }
+            )
 
             startEcho()
         } catch (e: SecurityException) {
